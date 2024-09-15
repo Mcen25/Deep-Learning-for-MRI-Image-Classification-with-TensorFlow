@@ -22,13 +22,13 @@ class_names = ['glioma', 'meningioma', 'no_tumor', 'pituitary']
 train_dataset = tf.keras.preprocessing.image_dataset_from_directory(
     training_data,
     image_size=(256, 256),
-    batch_size=32
+    batch_size=64,
 )
 
 test_dataset = tf.keras.preprocessing.image_dataset_from_directory(
     testing_data,
     image_size=(256, 256),
-    batch_size=32
+    batch_size=64,
 )
 
 train_images, train_labels = next(iter(train_dataset))
@@ -52,27 +52,38 @@ test_images, test_labels = next(iter(test_dataset))
 train_images, test_images = train_images / 255.0, test_images / 255.0
 
 model = models.Sequential()
-model.add(layers.Conv2D(32, (3,3), strides=(1,1), padding="same", activation='relu', input_shape=(256, 256, 3)))
-model.add(layers.MaxPool2D((2,2)))
-model.add(layers.Conv2D(32, 3, activation='relu'))
-model.add(layers.MaxPool2D((2,2)))
+
+model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same', input_shape=(256, 256, 3)))
+model.add(layers.MaxPooling2D((2, 2)))
+
+
+model.add(layers.Conv2D(128, (3, 3), activation='relu', padding='same'))
+model.add(layers.MaxPooling2D((2, 2)))
+
+model.add(layers.Conv2D(256, (3, 3), activation='relu', padding='same'))
+model.add(layers.MaxPooling2D((2, 2)))
+
+model.add(layers.Conv2D(512, (3, 3), activation='relu', padding='same'))
+model.add(layers.MaxPooling2D((2, 2)))
+
 model.add(layers.Flatten())
 model.add(layers.Dense(256, activation='relu'))
-# model.add(layers.Dropout(0.5))
+model.add(layers.Dropout(0.5))
 model.add(layers.Dense(64, activation='relu'))
-# model.add(layers.Dropout(0.5))
+model.add(layers.Dropout(0.5))
+model.add(layers.BatchNormalization())
 model.add(layers.Dense(4, activation='softmax')) 
-print(model.summary())  # Prints the model summary
+print(model.summary())
 
 # Use categorical crossentropy loss
-loss = losses.CategoricalCrossentropy(from_logits=False)
-optim = optimizers.Adam(learning_rate=0.0001)
+loss = losses.CategoricalCrossentropy(from_logits=True)
+# optim = optimizers.Adam(learning_rate=0.0001)
 metrics = ['accuracy']
 
-model.compile(optimizer=optim, loss=loss, metrics=metrics)
+model.compile(optimizer='adam', loss=loss, metrics=metrics)
 
 batch_size = 64
-epochs = 10
+epochs = 50
 
 # Convert labels to categorical
 train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=4)
