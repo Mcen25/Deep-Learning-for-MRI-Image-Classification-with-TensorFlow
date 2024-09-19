@@ -45,8 +45,30 @@ datagen = ImageDataGenerator(
     # zoom_range=0.2
 )
 
-# train_dataset = datagen.flow_from_directory('data/Training', target_size=(256, 256), batch_size=32, class_mode='binary')
+train_datagen = ImageDataGenerator(rescale=1./255,
+                                   shear_range=0.2,
+                                   zoom_range=0.2,
+                                   rotation_range=45,
+                                   horizontal_flip=True,
+                                   vertical_flip=True,
+                                   validation_split = .2)
 
+test_datagen = ImageDataGenerator(rescale=1./255,
+                                  validation_split = .2)
+
+training_set = train_datagen.flow_from_directory('data\Training',
+                                       target_size=(128, 128),
+                                                batch_size=32,
+                                     class_mode='categorical',
+                                            subset='training')
+
+validation_set = test_datagen.flow_from_directory('data\Testing',
+                                        target_size=(128, 128),
+                                                 batch_size=32,
+                                      class_mode='categorical',
+                                               shuffle = False,
+                                           subset='validation')
+                                   
 train_images, train_labels = next(iter(train_dataset))
 test_images, test_labels = next(iter(test_dataset))
 
@@ -85,7 +107,6 @@ model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Flatten())
 model.add(layers.Dense(128, activation='relu'))
 model.add(layers.Dropout(0.5))
-model.add(layers.BatchNormalization())
 model.add(layers.Dense(4, activation='softmax')) 
 print(model.summary())
 
@@ -97,7 +118,7 @@ metrics = ['accuracy']
 model.compile(optimizer='adam', loss=loss, metrics=metrics)
 
 batch_size = 64
-epochs = 20
+epochs = 50
 
 # Convert labels to categorical
 train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=4)
