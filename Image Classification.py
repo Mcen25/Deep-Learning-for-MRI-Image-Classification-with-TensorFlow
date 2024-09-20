@@ -91,21 +91,22 @@ test_generator = test_datagen.flow_from_directory(
 
 model = models.Sequential()
 
-model.add(layers.Conv2D(32, (3, 3), activation='relu', padding='same', input_shape=(256, 256, 3)))
+model.add(layers.Conv2D(16, (3, 3), activation='relu', padding='same', input_shape=(256, 256, 3)))
+model.add(layers.MaxPooling2D((2, 2)))
+
+model.add(layers.Conv2D(32, (3, 3), activation='relu', padding='same'))
 model.add(layers.MaxPooling2D((2, 2)))
 
 model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same'))
 model.add(layers.MaxPooling2D((2, 2)))
 
-model.add(layers.Conv2D(128, (3, 3), activation='relu', padding='same'))
-model.add(layers.MaxPooling2D((2, 2)))
-
-model.add(layers.Conv2D(256, (3, 3), activation='relu', padding='same'))
+model.add(layers.Conv2D(64, (3, 3), activation='relu', padding='same'))
 model.add(layers.MaxPooling2D((2, 2)))
 
 model.add(layers.Flatten())
 model.add(layers.Dense(256, activation='relu'))
 model.add(layers.Dropout(0.5))
+
 model.add(layers.Dense(4, activation='softmax'))
 print(model.summary())
 
@@ -116,7 +117,7 @@ metrics = ['accuracy']
 model.compile(optimizer='adam', loss=loss, metrics=metrics)
 
 batch_size = 64
-epochs = 10
+epochs = 75
 
 # Convert labels to categorical
 # train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=4)
@@ -125,9 +126,10 @@ epochs = 10
 # model.fit(train_generator, train_labels, epochs=epochs, batch_size=batch_size, verbose=2)
 model.fit(
     train_generator,
-    epochs=10,
+    epochs=epochs,
     validation_data=validation_generator,
 )
 # model.evaluate(test_generator, test_labels, batch_size=batch_size, verbose=2)
 test_loss, test_accuracy = model.evaluate(test_generator)
 print(f'Test accuracy: {test_accuracy:.2f}')
+print(f'Test loss: {test_loss:.2f}')
