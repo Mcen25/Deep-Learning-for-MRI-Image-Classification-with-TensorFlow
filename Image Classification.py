@@ -117,7 +117,7 @@ metrics = ['accuracy']
 model.compile(optimizer='adam', loss=loss, metrics=metrics)
 
 batch_size = 64
-epochs = 75
+epochs = 100
 
 # Convert labels to categorical
 # train_labels = tf.keras.utils.to_categorical(train_labels, num_classes=4)
